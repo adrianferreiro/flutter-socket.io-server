@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocketServer</title>
+</head>
+<body>
+    <h1>Acceso Denegado</h1>
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+        //éste script va a conectarse o hacer el llamado de la conexión a nuestro socket server
+        var socket = io();//éste se encuentra dentro de la librería que importamos en el script de arriba 
+        //cuando me conecto voy a hacer algo
+        socket.on('connect', function(){
+            console.log('Conectado al servidor');
+        });
+
+        socket.on('disconnect',function(){
+            console.log('Perdimos conexión');
+        });
+
+        //vamos a emitir un evento
+        //socket porque es el que tiene la conexión
+        //1° argumento es el nombre del evento que vamosa emitir ej. "mensaje"
+        //2° argumento: lo que queremos enviar (pueden ser strings, booleanos pero normalmente lo conveniente
+        // es mandar un objeto) por ej {nombre:'Fernando'} esto nos permite mandar varias cosas en un solo mensaje
+        socket.emit('mensaje', {nombre: 'Adrian'});
+
+        //escuchamos el mensaje
+        socket.on('mensaje', function(payload){
+            //abajo lo que vamos a hacer cuando reciba el mensaje
+            console.log('Escuchando: ', payload);
+        });
+    </script>
+</body>
+</html>
