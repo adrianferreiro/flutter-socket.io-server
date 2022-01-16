@@ -1,19 +1,54 @@
-const  {io} = require('../index.js');
+const { io } = require('../index');
 
-//mensajes de Sockets
-//client: va a ser una computadora o dispositivo que se acaba de conectar a mi socket server
+const Bands = require('../models/bands');
+const Band = require('../models/band');
+
+const bands = new Bands();
+
+bands.addBand( new Band( 'Breaking Benjamin' ) );
+bands.addBand( new Band( 'Bon Jovi' ) );
+bands.addBand( new Band( 'Héroes del Silencio' ) );
+bands.addBand( new Band( 'Metallica' ) );
+
+
+// Mensajes de Sockets
 io.on('connection', client => {
     console.log('Cliente conectado');
-    //lo de abajo es lo que se va a disparar cuando éste cliente en particular se desconecte
-    client.on('disconnect', () => { 
+
+    client.emit('active-bands', bands.getBands() );
+
+    client.on('disconnect', () => {
         console.log('Cliente desconectado');
     });
-    
-    //on: para escuchar un mensaje ya que el emit usamos en index.html
-    client.on('mensaje', (payload)=>{
-        //evento que se realiza cuando
-        console.log('Mensaje!!!', payload);
-        //lo de abajo emite un mensaje a todos los clientes conectados
-        io.emit('mensaje', {admin: 'Nuevo mensaje'});
+
+    client.on('mensaje', ( payload ) => {
+        console.log('Mensaje', payload);
+        io.emit( 'mensaje', { admin: 'Nuevo mensaje' } );
     });
+
+    client.on('vote-band', (payload) => {
+
+        bands.voteBand( payload.id );
+        io.emit('active-bands', bands.getBands() );
+    });
+
+    client.on('add-band', (payload) => {
+        const newBand = new Band( payload.name );
+        bands.addBand( newBand );
+        io.emit('active-bands', bands.getBands() );
+    });
+
+    client.on('delete-band', (payload) => {
+
+        bands.deleteBand( payload.id );
+        io.emit('active-bands', bands.getBands() );
+    });
+
+    // client.on('emitir-mensaje', ( payload ) => {
+    //     // console.log(payload);
+    //     // io.emit('nuevo-mensaje', payload ); // emite a todos!
+    //     client.broadcast.emit('nuevo-mensaje', payload ); // emite a todos menos el que lo emitió
+    // })
+
+
 });
